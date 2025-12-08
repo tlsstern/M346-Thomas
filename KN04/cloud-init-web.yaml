@@ -1,0 +1,68 @@
+#cloud-config
+users:
+  - name: ubuntu
+    groups: [users, admin]
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFXIHcTfrSBc8o/MF5atl7irxyIDDsBqwHTzvQGli5xieWO0A+8mGH6EB8xlMXeb2kNm33DBSWQFz0P4byg2Tch3IXf5ADj+FQdLKBDHohFAAs6rSdJk3psd1M11Pyd9GWE/qVTbTL4/ic5oOK+C+XZtN7XnzagTHxpgYPMghMl4FY/XjZ02lxKmbCuLiMUCyt7/BLI3dkSAaU61XplDWH+XhmoFPo+SR5idQGhf+dguN1RIXGqGcmiC6o08bUcVXTo4W0GlFdEtGWV6bRWsNYP3eBTN2r6V2UmO6MfraCzKmhKv79+GLtIk5kEnxLe2GoULLpmh2H3bAgmXVbaSYt aws-key
+
+package_update: true
+packages:
+  - apache2
+  - php
+  - libapache2-mod-php
+  - php-mysql
+  - adminer
+
+write_files:
+  - path: /var/www/html/index.html
+    content: |
+      <html>
+      <head><title>KN04 Webserver</title></head>
+      <body>
+      <h1>Welcome to KN04 Webserver</h1>
+      <p>Apache is running.</p>
+      </body>
+      </html>
+
+  - path: /var/www/html/info.php
+    content: |
+      <?php
+      phpinfo();
+      ?>
+
+  - path: /var/www/html/db.php
+    content: |
+      <html>
+      <head></head>
+      <body>
+      Diese Seite macht eine Abfrage auf die Datenbank. <br />
+      Das ausgeführte Query ist: <i>select Host, User from mysql.user;</i><br /><br />
+      Das Resultat: <br />
+      <?php
+              //database
+              $servername = "172.31.22.36";
+              $username = "admin";
+              $password = "Thomas-Password";
+              $dbname = "mysql";
+
+              // Create connection
+              $conn = new mysqli($servername, $username, $password, $dbname);
+              // Check connection
+              if ($conn->connect_error) {
+                      die("Connection failed: " . $conn->connect_error);
+              }
+
+              $sql = "select Host, User from mysql.user;";
+              $result = $conn->query($sql);
+              while($row = $result->fetch_assoc()){
+                      echo("<li>" . $row["Host"] . " / " . $row["User"] . "</li>");
+              }
+      ?>
+      </body>
+      </html>
+
+runcmd:
+  - sudo a2enconf adminer
+  - sudo systemctl restart apache2
