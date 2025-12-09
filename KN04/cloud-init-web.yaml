@@ -42,7 +42,7 @@ write_files:
       Das Resultat: <br />
       <?php
               //database
-              $servername = "172.31.22.36";
+              $servername = "172.31.78.28";
               $username = "admin";
               $password = "Thomas-Password";
               $dbname = "mysql";
