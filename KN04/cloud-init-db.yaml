@@ -13,6 +13,5 @@ packages:
 
 runcmd:
   - sudo sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
-  - sudo systemctl restart mariadb
   - sudo mysql -e "GRANT ALL ON *.* TO 'admin'@'%' IDENTIFIED BY 'Thomas-Password' WITH GRANT OPTION;"
   - sudo systemctl restart mariadb
