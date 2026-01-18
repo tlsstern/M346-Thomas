@@ -13,17 +13,17 @@
 ### Why PaaS/SaaS Database vs Self-Managed
 
 **PaaS/SaaS Advantages:**
-- ✅ Automatic maintenance, patches, and security updates
-- ✅ Automated backups with point-in-time recovery
-- ✅ High availability with multi-AZ and automatic failover
-- ✅ Easy scaling (vertical and horizontal) without downtime
-- ✅ Built-in monitoring and performance insights
-- ✅ Focus on application development instead of infrastructure
+- Automatic maintenance, patches, and security updates
+- Automated backups with point-in-time recovery
+- High availability with multi-AZ and automatic failover
+- Easy scaling (vertical and horizontal) without downtime
+- Built-in monitoring and performance insights
+- Focus on application development instead of infrastructure
 
 **Self-Managed Disadvantages:**
-- ❌ Manual updates, backups, and scaling
-- ❌ Higher operational overhead and costs
-- ❌ Requires specialized database expertise
+- Manual updates, backups, and scaling
+- Higher operational overhead and costs
+- Requires specialized database expertise
 
 ---
 
@@ -74,7 +74,7 @@
 
 ![Running Application](screenshots/B/Running_App.png)
 
-✅ Application successfully deployed and accessible.
+Application successfully deployed and accessible.
 
 ---
 
