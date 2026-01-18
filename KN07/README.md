@@ -10,25 +10,20 @@
 
 ---
 
-### Why PaaS/SaaS Database is Better than Self-Managed
+### Why PaaS/SaaS Database vs Self-Managed
 
-**Advantages:**
+**PaaS/SaaS Advantages:**
+- ✅ Automatic maintenance, patches, and security updates
+- ✅ Automated backups with point-in-time recovery
+- ✅ High availability with multi-AZ and automatic failover
+- ✅ Easy scaling (vertical and horizontal) without downtime
+- ✅ Built-in monitoring and performance insights
+- ✅ Focus on application development instead of infrastructure
 
-1. **Automatic Maintenance** - AWS handles OS patches, database updates, and security fixes automatically
-2. **Automated Backups** - Daily automatic backups with point-in-time recovery
-3. **High Availability** - Multi-AZ deployment with automatic failover
-4. **Scalability** - Easy vertical scaling (instance size) and horizontal scaling (read replicas)
-5. **Monitoring** - Built-in CloudWatch metrics and Performance Insights
-6. **Security** - Encryption at rest, encryption in transit, IAM authentication
-7. **Cost-Effective** - No need to manage infrastructure, pay only for what you use
-8. **Focus on Application** - Developers can focus on building features instead of managing databases
-
-**Disadvantages of Self-Managed:**
-- Manual patching and security updates required
-- Need to configure and manage backups yourself
-- Scaling requires downtime and manual intervention
-- Higher operational overhead and expertise needed
-- Potential security risks if not configured properly
+**Self-Managed Disadvantages:**
+- ❌ Manual updates, backups, and scaling
+- ❌ Higher operational overhead and costs
+- ❌ Requires specialized database expertise
 
 ---
 
@@ -42,17 +37,16 @@
 - **Platform**: Java (Amazon Corretto 17)
 - **Sample Application**: AWS Corretto Sample Application
 
-**Screenshots:**
+---
 
-**1. Service Access & Networking Configuration:**
+**1. Service Access & Networking:**
 
 ![Service Access Configuration](screenshots/B/Service_Access.png)
 
-**Configuration Choices:**
-- **Service Role**: Allows Elastic Beanstalk to manage AWS resources on your behalf
-- **VPC**: Default VPC for simplicity (in production, use custom VPC)
-- **Public IP**: Enabled for direct internet access to instances
-- **Subnets**: Multi-AZ deployment across 3 availability zones for high availability
+- **Service Role**: Allows Elastic Beanstalk to manage AWS resources
+- **VPC**: Default VPC (in production, use custom VPC)
+- **Public IP**: Enabled for internet access
+- **Subnets**: Multi-AZ deployment (3 availability zones) for high availability
 
 ---
 
@@ -60,18 +54,9 @@
 
 ![Instance Scaling Configuration](screenshots/B/Instance_Scaling.png)
 
-**Configuration Choices:**
-- **Load Balancer**: Application Load Balancer (ALB) distributes traffic across multiple instances
-- **Instance Type**: t3.micro (cost-effective for testing, sufficient for low traffic)
-- **Min Instances**: 1 (ensures at least one instance is always running)
-- **Max Instances**: 4 (allows scaling up during high traffic)
-- **Auto Scaling**: Based on network metrics (NetworkOut) for automatic scaling
-
-**Why Load Balancer?**
-- Distributes traffic evenly across healthy instances
-- Provides health checks and automatic instance replacement
-- Enables zero-downtime deployments
-- Supports SSL/TLS termination
+- **Load Balancer**: Application Load Balancer (distributes traffic, health checks, zero-downtime deployments)
+- **Instance Type**: t3.micro (cost-effective for testing)
+- **Auto Scaling**: Min 1, Max 4 instances based on network metrics
 
 ---
 
@@ -79,17 +64,9 @@
 
 ![Monitoring Configuration](screenshots/B/Monitoring_Logging.png)
 
-**Configuration Choices:**
-- **CloudWatch Monitoring**: Basic monitoring (5-minute intervals) enabled by default
-- **Enhanced Health Reporting**: Provides detailed health status of the environment
-- **Log Streaming**: Automatically streams application logs to CloudWatch Logs
-- **Managed Updates**: Weekly maintenance window for automatic platform updates
-
-**Why CloudWatch?**
-- Centralized logging for troubleshooting
-- Performance metrics and alerting
-- Historical data for capacity planning
-- Integration with other AWS services
+- **CloudWatch**: Basic monitoring (5-min intervals) and log streaming
+- **Enhanced Health Reporting**: Detailed environment health status
+- **Managed Updates**: Weekly maintenance window
 
 ---
 
@@ -97,15 +74,13 @@
 
 ![Running Application](screenshots/B/Running_App.png)
 
-✅ Application successfully deployed and accessible via the Elastic Beanstalk URL.
+✅ Application successfully deployed and accessible.
 
 ---
 
 ## C) Auto-Created Resources and CloudFormation (20%)
 
 ### AWS Resources Created Automatically
-
-When deploying an Elastic Beanstalk application with load balancing, AWS automatically creates the following resources via CloudFormation:
 
 **1. EC2 Instances:**
 
@@ -120,11 +95,9 @@ When deploying an Elastic Beanstalk application with load balancing, AWS automat
 
 ![Security Groups](screenshots/C/Security_Groups.png)
 
-Two security groups were created:
 - **Instance Security Group**: Protects EC2 instances, allows HTTP only from Load Balancer
 - **Load Balancer Security Group**: Protects Load Balancer, allows HTTP from anywhere
-
-**Security Best Practice:** Instances are not directly exposed to the internet, only accessible through the Load Balancer.
+- **Security Best Practice**: Instances not directly exposed to internet
 
 ---
 
@@ -143,10 +116,8 @@ Two security groups were created:
 
 ![Target Groups](screenshots/C/Target_Groups.png)
 
-- **Name**: awseb-AWSEB-GXGVMUHTTWWZ
 - **Target Type**: Instance
 - **Protocol**: HTTP (Port 80)
-- **Health Check**: HTTP on port 80
 - **Registered Targets**: 1 healthy instance
 
 ---
@@ -155,13 +126,12 @@ Two security groups were created:
 
 ![Auto Scaling Group](screenshots/C/Auto_Scaling.png)
 
-- **Name**: awseb-e-b3hga3ddxp-stack-AWSEBAutoScalingGroup-pMQtsKv64dRx
 - **Desired Capacity**: 1 instance
 - **Min**: 1, **Max**: 4
 - **Instance Type**: t3.micro
 - **Scaling Policies**:
-  - **Scale Up**: Triggered when NetworkOut > 6,000,000 bytes for 300 seconds
-  - **Scale Down**: Triggered when NetworkOut < 2,000,000 bytes for 300 seconds
+  - Scale Up: NetworkOut > 6,000,000 bytes for 300 seconds
+  - Scale Down: NetworkOut < 2,000,000 bytes for 300 seconds
 
 ---
 
@@ -169,77 +139,34 @@ Two security groups were created:
 
 ![CloudFormation Resources](screenshots/C/CloudFormation.png)
 
-- **Stack Name**: awseb-e-b3hga3ddxp-stack
-- **Total Resources Created**: 14
 - **Status**: CREATE_COMPLETE
-
-**Key Resources Include:**
-- Auto Scaling Group and Launch Configuration
-- Security Groups
-- Load Balancer, Target Group, and Listeners
-- CloudWatch Alarms for scaling policies
-- IAM roles and instance profiles
+- **Total Resources Created**: 14
+- Includes: Auto Scaling Group, Security Groups, Load Balancer, Target Groups, CloudWatch Alarms, IAM roles
 
 ---
 
 ### CloudFormation vs Cloud-Init
 
-#### What is CloudFormation?
-
-**CloudFormation** is AWS's **Infrastructure as Code (IaC)** service that allows you to define and provision AWS infrastructure resources using JSON or YAML templates.
-
-**Key Features:**
-- **Declarative**: You describe what resources you want, not how to create them
-- **Infrastructure Management**: Creates entire stacks of AWS resources (VPC, EC2, RDS, Load Balancers, etc.)
-- **Version Control**: Templates can be versioned and stored in Git
-- **Rollback**: Automatically rolls back if creation fails
-- **Updates**: Can update existing stacks without recreating everything
-- **Drift Detection**: Detects manual changes made outside of CloudFormation
-
-**Example Use Cases:**
-- Creating an entire application environment (VPC, subnets, EC2, RDS, Load Balancer)
-- Setting up multi-tier applications
-- Replicating environments (Dev, Staging, Production)
-
----
-
-#### What is Cloud-Init?
-
-**Cloud-Init** is an industry-standard tool for **initializing cloud instances at boot time**. It runs scripts to configure the operating system and applications.
-
-**Key Features:**
-- **OS-Level Configuration**: Configures the operating system (users, packages, files)
-- **Boot-Time Execution**: Runs once when the instance first starts
-- **Application Setup**: Installs and configures applications (Nginx, databases, etc.)
-- **User Data**: Passed to EC2 instances via User Data field
-
-**Example Use Cases:**
-- Installing software packages (`apt install nginx`)
-- Creating users and SSH keys
-- Configuring network settings
-- Starting services automatically
-
----
-
-#### Key Differences
-
 | Aspect | CloudFormation | Cloud-Init |
 |--------|---------------|------------|
-| **Scope** | AWS Infrastructure (resources) | OS Configuration (software) |
+| **What** | Infrastructure as Code (IaC) | Instance initialization tool |
+| **Scope** | AWS Infrastructure | OS Configuration |
 | **Level** | Infrastructure Layer | Operating System Layer |
 | **Purpose** | Create/manage AWS resources | Configure instances at boot |
 | **Format** | JSON/YAML templates | YAML or shell scripts |
 | **Execution** | AWS API calls | Runs inside the instance |
-| **Idempotency** | Yes (manages state) | Partially (depends on script) |
+| **When** | Provisions infrastructure | After instance starts |
+| **Idempotency** | Yes (manages state) | Partial (depends on script) |
 | **Rollback** | Automatic | Manual |
-| **Example** | Create VPC, EC2, RDS | Install Apache, configure users |
+| **Examples** | Create VPC, EC2, RDS, Load Balancers | Install Nginx, create users, configure apps |
+| **Use Cases** | Multi-tier environments, replicable infra | Software setup, system configuration |
 
-**Zusammenfassung:**
+**Summary:**
 - **CloudFormation** = "What AWS resources do I need?" (Infrastructure)
 - **Cloud-Init** = "How do I configure those resources?" (Software)
 
-In Elastic Beanstalk, both are used together:
-1. **CloudFormation** creates the infrastructure (EC2, Load Balancer, etc.)
-2. **Cloud-Init/User Data** configures the instances with the application
+**In Elastic Beanstalk:**
+1. CloudFormation creates infrastructure (EC2, Load Balancer, Auto Scaling, etc.)
+2. Cloud-Init configures instances with the application
 
 ---
