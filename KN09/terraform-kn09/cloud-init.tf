@@ -1,0 +1,15 @@
+# Cloud-init configuration for database server
+locals {
+  db_cloud_init = <<-EOF
+    #cloud-config
+    packages:
+      - mariadb-server
+
+    runcmd:
+      - sudo systemctl start mariadb
+      - sudo systemctl enable mariadb
+      - sudo mysql -sfu root -e "GRANT ALL ON *.* TO 'admin'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;"
+      - sudo sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
+      - sudo systemctl restart mariadb
+  EOF
+}
