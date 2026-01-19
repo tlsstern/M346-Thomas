@@ -1,303 +1,229 @@
-# KN09: Automation - Infrastructure as Code
+# KN09: Automation - Thomas Stern
 
-> **Status:** ✅ COMPLETE (100%)  
-> **Date:** 2026-01-19
+## A) Automatisierung mit Command Line Interface (CLI) (30%)
 
-## 📋 Assignment Overview
+### Task 1: Instanz stoppen und starten
 
-This assignment focuses on infrastructure automation using:
-- **Part A (30%):** AWS Command Line Interface (CLI)
-- **Part B (70%):** Terraform (Infrastructure as Code)
-
----
-
-## 🎯 Part A: AWS CLI Automation (30%)
-
-### Task 1: Stop and Start EC2 Instance
-
-**Objective:** Control an existing EC2 instance using AWS CLI commands.
-
-**Commands:**
+**Befehle:**
 ```bash
-# Stop instance
-aws ec2 stop-instances --instance-ids i-XXXXXXXXX
-
-# Start instance
-aws ec2 start-instances --instance-ids i-XXXXXXXXX
-
-# Check instance status
-aws ec2 describe-instances --instance-ids i-XXXXXXXXX
+aws ec2 stop-instances --instance-ids i-0123456789abcdef0
+aws ec2 start-instances --instance-ids i-0123456789abcdef0
+aws ec2 describe-instances --instance-ids i-0123456789abcdef0
 ```
 
-**Deliverables:** ✅
-1. Screenshot of instance details before stopping
-2. Screenshot of stop command execution
-3. Screenshot of instance in stopped state
-4. Screenshot of start command execution
-5. Screenshot of instance running after restart
+**Screenshots:**
 
-**Location:** `Part_A_Screenshots/` (5 screenshots ending with `_t1.png`)
+![Instance before stopping](Part_A_Screenshots/instance_before_stopping_t1.png)
+
+![Stop command](Part_A_Screenshots/stop_instance_command_t1.png)
+
+![Instance stopped](Part_A_Screenshots/instance_stopped_t1.png)
+
+![Start command](Part_A_Screenshots/start_instance_command_t1.png)
+
+![Instance running](Part_A_Screenshots/instance_running_after_restart_t1.png)
 
 ---
 
-### Task 2: Create Database Instance via CLI
+### Task 2: Database Server erstellen
 
-**Objective:** Create a new MariaDB database server using AWS CLI with cloud-init.
+**Cloud-Init:** `db-cloud-init.yaml`
 
-**Key Steps:**
-1. Create security group (SSH port 22 only)
-2. Launch EC2 instance with cloud-init script
-3. Verify MariaDB installation via SSH
-
-**Commands Used:**
+**Befehle:**
 ```bash
-# Create security group
-aws ec2 create-security-group --group-name DB-KN09-CLI-SG --description "Security group for KN09 database"
+# Security Group erstellen (NUR SSH, KEIN Port 3306 wegen AWS Academy!)
+aws ec2 create-security-group \
+  --group-name db-sg-kn09-cli \
+  --description "Security group for KN09 DB server"
 
-# Add SSH rule
-aws ec2 authorize-security-group-ingress --group-id sg-XXXXXX --protocol tcp --port 22 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-xxxxx --protocol tcp --port 22 --cidr 0.0.0.0/0
 
-# Launch instance with cloud-init
+# Instance erstellen mit Cloud-Init
 aws ec2 run-instances \
-  --image-id ami-XXXXXX \
-  --instance-type t3.micro \
+  --image-id ami-0e86e20dae9224db8 \
+  --instance-type t2.micro \
   --key-name thomas1 \
-  --security-group-ids sg-XXXXXX \
+  --security-group-ids sg-xxxxx \
   --user-data file://db-cloud-init.yaml \
-  --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=DB-Server-KN09-CLI}]'
+  --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=DB-Server-KN09-CLI}]"
 ```
 
-**Deliverables:** ✅
-1. Screenshot of security group creation
-2. Screenshot of security group details (SSH only, no port 3306)
-3. Screenshot of instance creation output
-4. Screenshot of instance running with public IP
-5. Screenshot of MariaDB status (active/running)
-6. Screenshot of MariaDB version
-7. Screenshot of AWS Console showing the instance
+**Detailliertes Script:** `part-a-task2-commands.ps1`
 
-**Location:** `Part_A_Screenshots/` (7 screenshots ending with `_t2.png`)
+**Screenshots:**
 
----
+![Security Group Creation](Part_A_Screenshots/security_group_creation_t2.png)
 
-### Task 3: KN05 Reconstruction via CLI
+![Security Group Details (SSH only)](Part_A_Screenshots/security_group_details_ssh_only_t2.png)
 
-**Objective:** Document AWS CLI commands to recreate the entire KN05 infrastructure.
+![Instance Creation](Part_A_Screenshots/instance_creation_output_t2.png)
 
-**Deliverables:** ✅
-- Complete CLI command list in `kn09-cli-commands.md`
-- Explanation of automation challenges with CLI
-- Discussion of sequential dependencies and error handling
+![Instance Running](Part_A_Screenshots/instance_running_with_public_ip_t2.png)
 
-**Key Challenge:**  
-CLI automation requires manual handling of:
-- Resource ID extraction and referencing
-- Sequential dependency management
-- Error handling and rollback logic
-- State management
+![MariaDB Status](Part_A_Screenshots/mariadb_status_active_running_t2.png)
+
+![MariaDB Version](Part_A_Screenshots/mariadb_version_output_t2.png)
+
+![AWS Console](Part_A_Screenshots/aws_console_instance_details_t2.png)
+
+**Hinweis:** Port 3306 wurde **nicht** geöffnet, um AWS Academy Account-Sperrung zu vermeiden. MariaDB-Test erfolgte via SSH.
 
 ---
 
-## 🚀 Part B: Terraform Infrastructure as Code (70%)
+### Task 3: KN05 Nachbildung via CLI
 
-### Objective
-Create a MariaDB database server using Terraform with full infrastructure automation.
+**Vollständige Befehls-Liste:** `kn09-cli-commands.md` (407 Zeilen)
 
-### Infrastructure Components
+Beispiele:
+```bash
+# VPC erstellen
+aws ec2 create-vpc \
+  --cidr-block 10.0.0.0/16 \
+  --tag-specifications "ResourceType=vpc,Tags=[{Key=Name,Value=vpc-kn09}]"
 
-**Terraform Configuration Files:**
-- `provider.tf` - AWS provider configuration
-- `variables.tf` - Input variables (region, instance type, key name)
-- `security-group.tf` - Security group with SSH and MariaDB ports
-- `cloud-init.tf` - Embedded cloud-init script
-- `main.tf` - EC2 instance configuration
-- `outputs.tf` - Output values (instance IP, ID, etc.)
+# Internet Gateway erstellen
+aws ec2 create-internet-gateway \
+  --tag-specifications "ResourceType=internet-gateway,Tags=[{Key=Name,Value=igw-kn09}]"
 
-**Key Features:**
-- ✅ Automated security group creation
-- ✅ Cloud-init script embedded in Terraform
-- ✅ MariaDB installation and configuration
-- ✅ Output values for easy access to instance details
+# ... (siehe kn09-cli-commands.md für vollständige Liste)
+```
 
-### Terraform Commands
+---
+
+### Was ist notwendig für CLI-Automatisierung?
+
+Die Befehle können **nicht** einfach nacheinander ausgeführt werden. Notwendig ist:
+
+#### 1. **Dynamisches ID-Capturing**
+Ressourcen-IDs müssen erfasst und in nachfolgenden Befehlen verwendet werden:
+```powershell
+$VPC_ID = (aws ec2 create-vpc --cidr-block 10.0.0.0/16 --query 'Vpc.VpcId' --output text)
+aws ec2 create-subnet --vpc-id $VPC_ID --cidr-block 10.0.1.0/24
+```
+
+#### 2. **Error Handling**
+Jeder Befehl muss auf Erfolg geprüft werden:
+```powershell
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed!"
+    exit 1
+}
+```
+
+#### 3. **Wait States**
+Warten bis Ressourcen verfügbar sind:
+```bash
+aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+```
+
+#### 4. **Idempotenz**
+Prüfen ob Ressourcen bereits existieren:
+```powershell
+$EXISTING = (aws ec2 describe-vpcs --filters "Name=tag:Name,Values=vpc-kn09" ...)
+if ($EXISTING -eq "None") { # Erstellen } else { # Verwenden }
+```
+
+#### 5. **State Management**
+Alle IDs speichern für Cleanup:
+```powershell
+@{ VpcId=$VPC_ID; SubnetId=$SUBNET_ID } | ConvertTo-Json | Out-File "state.json"
+```
+
+#### 6. **Dependency Management**
+Reihenfolge beachten: VPC → Subnet → Security Group → Instance
+
+**Fazit:** CLI-Automatisierung ist **komplex** und **fehleranfällig**. Daher gibt es Tools wie Terraform!
+
+---
+
+## B) Terraform (70%)
+
+### Terraform Konfiguration
+
+**Verzeichnis:** `terraform-kn09/`
+
+**Dateien:**
+- `provider.tf` - AWS Provider (Region: us-east-1)
+- `variables.tf` - Instance Type, DB Name
+- `security-group.tf` - Security Group (SSH only)
+- `cloud-init.tf` - MariaDB Installation Script
+- `main.tf` - EC2 Instance mit dynamischer AMI-Suche (Ubuntu 22.04)
+- `outputs.tf` - Instance ID, Public IP, Security Group ID
+
+---
+
+### Terraform Befehle
 
 ```bash
-# Initialize Terraform
-terraform init
-
-# Validate configuration
-terraform validate
-
-# Preview changes
-terraform plan
-
-# Apply infrastructure
-terraform apply
-
-# View outputs
-terraform output
-
-# Destroy infrastructure (when done)
-terraform destroy
-```
-
-### Deliverables: ✅
-
-1. **Terraform Configuration Files**  
-   Location: `terraform-kn09/` directory
-   - provider.tf
-   - variables.tf
-   - security-group.tf
-   - cloud-init.tf
-   - main.tf
-   - outputs.tf
-
-2. **Screenshots** (7 total)  
-   Location: `Part_B_Screenshots/` (all ending with `_partb.png`)
-   - `terraform_plan_output_partb.png`
-   - `terraform_apply_success_partb.png`
-   - `terraform_output_partb.png`
-   - `aws_console_instance_running_partb.png`
-   - `ssh_mariadb_status_partb.png`
-   - `mariadb_version_partb.png`
-   - `database_connection_test_partb.png`
-
-3. **Documentation**
-   - List of Terraform commands executed
-   - Explanation of why Terraform is easier than CLI automation
-
-### Why Terraform vs CLI?
-
-**Terraform Advantages:**
-- **Declarative:** Define desired state, not steps
-- **Automatic Dependency Management:** Terraform handles resource order
-- **State Management:** Tracks infrastructure state automatically
-- **Idempotent:** Safe to run multiple times
-- **Built-in Validation:** Catches errors before apply
-- **Easy Destroy:** One command removes all resources
-- **No Manual ID Tracking:** Resources referenced by name/interpolation
-
-**CLI Challenges:**
-- Imperative scripting required
-- Manual dependency ordering
-- Manual state tracking
-- Complex error handling needed
-- Resource ID extraction and management
-- No built-in rollback mechanism
-
----
-
-## 📁 Directory Structure
-
-```
-KN09/
-├── README.md                          # This file
-├── KN09.md                            # Original assignment document
-│
-├── Part_A_Screenshots/                # Part A deliverables (12 screenshots)
-│   ├── instance_before_stopping_t1.png
-│   ├── stop_instance_command_t1.png
-│   ├── instance_stopped_t1.png
-│   ├── start_instance_command_t1.png
-│   ├── instance_running_after_restart_t1.png
-│   ├── security_group_creation_t2.png
-│   ├── security_group_details_ssh_only_t2.png
-│   ├── instance_creation_output_t2.png
-│   ├── instance_running_with_public_ip_t2.png
-│   ├── mariadb_status_active_running_t2.png
-│   ├── mariadb_version_output_t2.png
-│   └── aws_console_instance_details_t2.png
-│
-├── Part_B_Screenshots/                # Part B deliverables (7 screenshots)
-│   ├── terraform_plan_output_partb.png
-│   ├── terraform_apply_success_partb.png
-│   ├── terraform_output_partb.png
-│   ├── aws_console_instance_running_partb.png
-│   ├── ssh_mariadb_status_partb.png
-│   ├── mariadb_version_partb.png
-│   └── database_connection_test_partb.png
-│
-├── terraform-kn09/                    # Terraform configuration
-│   ├── provider.tf
-│   ├── variables.tf
-│   ├── security-group.tf
-│   ├── cloud-init.tf
-│   ├── main.tf
-│   └── outputs.tf
-│
-├── db-cloud-init.yaml                 # Cloud-init script for MariaDB
-├── kn09-cli-commands.md               # Part A Task 3: CLI commands for KN05
-└── part-a-task2-commands.ps1          # Part A Task 2: PowerShell script
+terraform init      # Provider herunterladen
+terraform fmt       # Code formatieren
+terraform validate  # Konfiguration prüfen
+terraform plan      # Preview der Änderungen
+terraform apply     # Infrastruktur erstellen
+terraform output    # Outputs anzeigen
+terraform destroy   # Aufräumen
 ```
 
 ---
 
-## ✅ Completion Checklist
+### Screenshots
 
-### Part A: AWS CLI (30%)
-- [x] Task 1: Stop/Start Instance (5 screenshots)
-- [x] Task 2: Create DB Instance (7 screenshots)
-- [x] Task 3: KN05 CLI Documentation
-- [x] Automation explanation written
+![Terraform Plan](Part_B_Screenshots/terraform_plan_output_partb.png)
 
-### Part B: Terraform (70%)
-- [x] Terraform configuration files created
-- [x] terraform init executed
-- [x] terraform plan executed
-- [x] terraform apply executed successfully
-- [x] MariaDB verified running
-- [x] All 7 screenshots captured
-- [x] Terraform vs CLI comparison documented
+![Terraform Apply](Part_B_Screenshots/terraform_apply_success_partb.png)
 
-### Overall
-- [x] All screenshots properly named and organized
-- [x] All code files in Git repository
-- [x] Documentation complete
-- [x] Assignment 100% complete
+![Terraform Output](Part_B_Screenshots/terraform_output_partb.png)
+
+![AWS Console Instance](Part_B_Screenshots/aws_console_instance_running_partb.png)
+
+![MariaDB Status](Part_B_Screenshots/ssh_mariadb_status_partb.png)
+
+![MariaDB Version](Part_B_Screenshots/mariadb_version_partb.png)
+
+![Database Connection](Part_B_Screenshots/database_connection_test_partb.png)
 
 ---
 
-## 🔧 Technical Details
+### Warum ist Terraform einfacher als CLI?
 
-### Cloud-Init Script
-The `db-cloud-init.yaml` script:
-- Updates system packages
-- Installs MariaDB server
-- Starts and enables MariaDB service
-- Configures firewall for MariaDB (port 3306)
+| Aspekt | CLI | Terraform |
+|--------|-----|-----------|
+| **ID-Capturing** | Manuell: `$VPC_ID = (aws ec2 create-vpc ...)` | Automatisch: `aws_vpc.main.id` |
+| **Reihenfolge** | Manuell festlegen | Automatischer Dependency Graph |
+| **State** | Manuell tracken (JSON-Datei) | `terraform.tfstate` automatisch |
+| **Idempotenz** | Manuell prüfen ob existiert | Eingebaut - `apply` immer sicher |
+| **Preview** | Nicht möglich | `terraform plan` zeigt Änderungen |
+| **Fehler** | Manuelles Cleanup | State bleibt aktuell, retry möglich |
+| **Cleanup** | Reverse-Reihenfolge manuell | `terraform destroy` - ein Befehl |
+| **Syntax** | Imperativ (WIE) | Deklarativ (WAS) |
 
-### Security Groups
-- **Part A:** SSH only (port 22) - Intentional to avoid AWS Academy lockout
-- **Part B:** SSH (22) + MariaDB (3306)
+**Beispiel:**
 
-### Instance Configuration
-- **AMI:** Ubuntu 22.04 LTS (ami-0e2c8caa4b6378d8c)
-- **Instance Type:** t3.micro
-- **Key Pair:** thomas1
-- **Region:** us-east-1
+**CLI (komplex):**
+```powershell
+$VPC_ID = (aws ec2 create-vpc ... --query 'Vpc.VpcId' --output text)
+if ($LASTEXITCODE -ne 0) { exit 1 }
+$SG_ID = (aws ec2 create-security-group --vpc-id $VPC_ID --query 'GroupId' ...)
+if ($LASTEXITCODE -ne 0) { exit 1 }
+aws ec2 authorize-security-group-ingress --group-id $SG_ID ...
+aws ec2 run-instances --security-group-ids $SG_ID ...
+aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+```
+
+**Terraform (einfach):**
+```hcl
+resource "aws_security_group" "db_sg" {
+  vpc_id = data.aws_vpc.default.id
+  # ...
+}
+
+resource "aws_instance" "db_server" {
+  vpc_security_group_ids = [aws_security_group.db_sg.id]
+  # ...
+}
+```
+
+Terraform macht **alles automatisch**: Dependencies, Waits, Error Handling, State Management!
 
 ---
-
-## 📚 Reference Documentation
-
-- AWS CLI Reference: https://awscli.amazonaws.com/v2/documentation/api/latest/reference/
-- Terraform AWS Provider: https://registry.terraform.io/providers/hashicorp/aws/latest/docs
-- AWS Cloud-Init: https://cloudinit.readthedocs.io/
-
----
-
-## 🎓 Learning Outcomes Achieved
-
-✅ Infrastructure automation using CLI  
-✅ Understanding of CLI limitations and challenges  
-✅ Terraform fundamentals (init, plan, apply, destroy)  
-✅ Infrastructure as Code best practices  
-✅ Declarative vs Imperative infrastructure management  
-✅ Cloud-init script integration  
-✅ Security group configuration  
-✅ Resource dependency management
-
----
-
-**Assignment Completed:** 2026-01-19  
-**Grade Estimate:** 100/100 🎯
