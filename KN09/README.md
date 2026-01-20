@@ -143,13 +143,15 @@ Reihenfolge beachten: VPC → Subnet → Security Group → Instance
 
 **Verzeichnis:** `terraform-kn09/`
 
-**Dateien:**
-- `provider.tf` - AWS Provider (Region: us-east-1)
-- `variables.tf` - Instance Type, DB Name
-- `security-group.tf` - Security Group (SSH only)
-- `cloud-init.tf` - MariaDB Installation Script
-- `main.tf` - EC2 Instance mit dynamischer AMI-Suche (Ubuntu 22.04)
-- `outputs.tf` - Instance ID, Public IP, Security Group ID
+**Datei:**
+- `main.tf` - Vollständige Terraform-Konfiguration mit:
+  - **Provider**: AWS (Region: us-east-1) mit Terraform-Version
+  - **Variables**: Instance Type, DB Name
+  - **Locals**: Cloud-Init Konfiguration für MariaDB Installation
+  - **Data Sources**: Default VPC, Latest Ubuntu 22.04 AMI
+  - **Security Group**: SSH-Zugriff (Port 22 only)
+  - **EC2 Instance**: Database Server mit dynamischer AMI-Suche
+  - **Outputs**: Instance ID, Public IP, Security Group ID, Connection Test Command
 
 ---
 
